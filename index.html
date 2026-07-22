@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Micro Radar APRS - Instalador</title>
+    <!-- Pinned to a version that actually exists. 10.0.3 was never published: unpkg answered 404,
+         the custom element never registered, and the browser rendered every <slot> at once - which
+         looked exactly like "your browser doesn't support Web Serial", in a browser that does. -->
+    <script type="module" src="https://unpkg.com/esp-web-tools@10.3.0/dist/web/install-button.js"></script>
+    <style>
+        :root { color-scheme: dark; }
+        body {
+            margin: 0;
+            padding: 2rem 1.25rem 4rem;
+            background: #000;
+            color: #00c800;
+            font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+        }
+        main { width: 100%; max-width: 34rem; }
+        h1 { color: #0f0; font-size: 1.6rem; margin: 0 0 .25rem; }
+        .sub { color: #ff0; margin: 0 0 2rem; letter-spacing: .1em; }
+        h2 { color: #0f0; font-size: 1rem; margin: 2.5rem 0 .5rem; }
+        ol, ul { padding-left: 1.25rem; }
+        li { margin-bottom: .4rem; }
+        code {
+            background: #0a1a0a;
+            border: 1px solid #064006;
+            padding: .1rem .35rem;
+        }
+        .install {
+            border: 1px solid #00c800;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .note {
+            border-left: 3px solid #ff0;
+            padding: .6rem 0 .6rem 1rem;
+            color: #9a9a00;
+            margin: 1.5rem 0;
+        }
+        .unsupported { color: #ff5555; }
+        a { color: #ff0; }
+        footer { margin-top: 3rem; color: #046004; font-size: .85rem; }
+
+        .shots {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1.5rem 0 2rem;
+        }
+        .shots figure { margin: 0; flex: 1; max-width: 15rem; }
+        .shots img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #064006;
+            border-radius: 4px;
+            display: block;
+        }
+        .shots figcaption {
+            text-align: center;
+            font-size: .8rem;
+            margin-top: .4rem;
+            color: #9a9a00;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Micro Radar APRS</h1>
+    <p class="sub">RASTREADOR DE ESTACOES APRS - ESP32 CYD - v1.0</p>
+
+    <div class="shots">
+        <figure>
+            <img src="tela-verde.jpeg" alt="Radar no tema verde" loading="lazy">
+            <figcaption>Tema verde</figcaption>
+        </figure>
+        <figure>
+            <img src="tela-vermelha.jpeg" alt="Radar no tema vermelho" loading="lazy">
+            <figcaption>Tema vermelho</figcaption>
+        </figure>
+    </div>
+
+    <p>
+        Grave o firmware direto pelo navegador. Nao precisa instalar VSCode,
+        PlatformIO nem baixar nada.
+    </p>
+
+    <div class="install">
+        <esp-web-install-button manifest="manifest.json?v=1.0">
+            <button slot="activate" style="
+                background:#00a000; color:#000; border:0; padding:.85rem 1.75rem;
+                font:inherit; font-weight:700; cursor:pointer;">
+                CONECTAR E INSTALAR
+            </button>
+            <span slot="unsupported" class="unsupported">
+                Seu navegador nao suporta Web Serial. Use o <strong>Chrome</strong> ou o
+                <strong>Edge</strong> no computador (Firefox e Safari nao funcionam),
+                ou baixe o instalador offline.
+            </span>
+            <span slot="not-allowed" class="unsupported">
+                Esta pagina precisa ser aberta por HTTPS para acessar a porta serial.
+            </span>
+        </esp-web-install-button>
+    </div>
+
+    <script>
+        // The manifest is fetched by the component when the user CLICKS, long after the page has
+        // loaded - so a hard refresh never touches it, and the browser happily serves a stale copy.
+        // That is not a cosmetic problem: a manifest published with the wrong erase flag stayed
+        // cached and kept wiping people's WiFi and settings even after the file was fixed on the
+        // server. A per-load timestamp makes the URL unique, so this can never happen again.
+        document.querySelector('esp-web-install-button')
+                .setAttribute('manifest', 'manifest.json?t=' + Date.now());
+    </script>
+
+    <h2>Como instalar</h2>
+    <ol>
+        <li>Conecte a placa CYD ao computador com um cabo USB <strong>de dados</strong>
+            (muitos cabos so tem os fios de energia e nao funcionam).</li>
+        <li>Clique em <strong>CONECTAR E INSTALAR</strong>.</li>
+        <li>Escolha a porta serial da placa na janela do navegador
+            (aparece como <code>CH340</code>, <code>CP210x</code> ou <code>USB-SERIAL</code>).</li>
+        <li>Vai aparecer uma caixa <strong>"Erase device"</strong>.
+            <strong>DEIXE ELA DESMARCADA</strong> e clique em <em>Next</em>.</li>
+        <li>Confirme e aguarde a gravacao terminar. A placa reinicia sozinha.</li>
+    </ol>
+
+    <div class="note">
+        <strong>Atualizando uma placa que ja funciona?</strong>
+        Nao marque a caixa <strong>"Erase device"</strong>. Deixando-a desmarcada, o WiFi, a
+        calibracao da tela e todas as suas configuracoes sao preservados. Marcar apaga tudo e voce
+        tera de configurar do zero.
+    </div>
+
+    <div class="note">
+        Se nenhuma porta aparecer na lista, falta o driver USB-serial da placa.
+        Instale o driver <strong>CH340</strong> ou <strong>CP210x</strong> (depende do
+        chip da sua CYD), desconecte e conecte a placa de novo.
+    </div>
+
+    <h2>Depois de gravar</h2>
+    <ol>
+        <li>Na primeira vez, a tela pede para calibrar o toque: toque nos cantos indicados.</li>
+        <li>A placa cria uma rede Wi-Fi chamada <strong>MicroRadar-Setup</strong>
+            (o nome tambem aparece na tela). Conecte o celular ou o computador nela.</li>
+        <li>A tela de configuracao abre sozinha. Escolha a sua rede Wi-Fi e digite a senha.</li>
+        <li>A placa reinicia e mostra o IP dela na tela. Abra esse IP no navegador para
+            configurar a posicao do radar, o indicativo/servidor APRS-IS, o clima e a cor da tela.</li>
+    </ol>
+
+    <h2>Nao consegue usar o navegador?</h2>
+    <p>
+        Baixe o <a href="micro_radar_aprs_v1.0_instalador.zip">instalador offline (Windows)</a>,
+        extraia e execute <code>gravar.bat</code>.
+    </p>
+
+    <footer>
+        Micro Radar APRS &middot; firmware v1.0 &middot; ESP32-2432S028R (CYD)
+    </footer>
+</main>
+</body>
+</html>
